@@ -107,6 +107,16 @@ with st.sidebar:
     # Game Data Input
     st.subheader("2. Game Data")
     uploaded_csvs = st.file_uploader("Upload Game Data (CSV)", type="csv", accept_multiple_files=True)
+    
+    st.divider()
+    
+    # Optional: Image Uploads for visual context
+    st.subheader("3. Game Images (Optional)")
+    uploaded_images = st.file_uploader(
+        "Upload Game Images",
+        type=["png", "jpg", "jpeg"],
+        accept_multiple_files=True
+    )
 
 # --- Main Content Area for Report Generation and Display ---
 if st.button("🚀 Generate Post-Game Report", type="primary"):
