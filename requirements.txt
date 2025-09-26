@@ -4,3 +4,4 @@ anthropic>=0.33
 fitz
 pandas
 pymupdf
+tabulate
