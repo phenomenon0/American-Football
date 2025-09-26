@@ -87,33 +87,33 @@ with st.sidebar:
     st.header("📋 Report Inputs")
     
     # Scouting Report Input
-    st.subheader("1. Pre-Game Scouting Report")
+    st.subheader("1. Scouting Report")
     report_option = st.radio(
-        "Choose input method:",
+        "Method:",
         ("Upload PDF", "Paste Text"),
         key="scouting_report_option"
     )
 
     scouting_report_text = ""
     if report_option == "Upload PDF":
-        uploaded_pdfs = st.file_uploader("Upload Scouting Report (PDF)", type="pdf", accept_multiple_files=True)
+        uploaded_pdfs = st.file_uploader("PDF Files", type="pdf", accept_multiple_files=True)
         if uploaded_pdfs:
             scouting_report_text = extract_text_from_multiple_pdfs(uploaded_pdfs)
     else:
-        scouting_report_text = st.text_area("Paste the scouting report text here:", height=200)
+        scouting_report_text = st.text_area("Report text:", height=120)
 
     st.divider()
 
     # Game Data Input
     st.subheader("2. Game Data")
-    uploaded_csvs = st.file_uploader("Upload Game Data (CSV)", type="csv", accept_multiple_files=True)
+    uploaded_csvs = st.file_uploader("CSV Files", type="csv", accept_multiple_files=True)
     
     st.divider()
     
     # Optional: Image Uploads for visual context
-    st.subheader("3. Game Images (Optional)")
+    st.subheader("3. Images (Optional)")
     uploaded_images = st.file_uploader(
-        "Upload Game Images",
+        "Game Images",
         type=["png", "jpg", "jpeg"],
         accept_multiple_files=True
     )
