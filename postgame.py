@@ -39,6 +39,27 @@ def extract_text_from_pdf(pdf_file):
         st.error(f"Error reading PDF file: {e}")
         return None
 
+def extract_text_from_multiple_pdfs(pdf_files):
+    """Extracts and combines text from multiple PDF files."""
+    combined_text = ""
+    for i, pdf_file in enumerate(pdf_files):
+        text = extract_text_from_pdf(pdf_file)
+        if text:
+            combined_text += f"\n\n--- DOCUMENT {i+1}: {pdf_file.name} ---\n\n{text}"
+    return combined_text
+
+def combine_csv_data(csv_files):
+    """Combines multiple CSV files into a single formatted string."""
+    combined_data = ""
+    for i, csv_file in enumerate(csv_files):
+        try:
+            df = pd.read_csv(csv_file)
+            combined_data += f"\n\n--- GAME DATA FILE {i+1}: {csv_file.name} ---\n\n"
+            combined_data += df.to_markdown(index=False)
+        except Exception as e:
+            st.error(f"Error reading CSV file {csv_file.name}: {e}")
+    return combined_data
+
 def generate_report_stream(prompt_text):
     """Generates the report by streaming the response from the Anthropic API."""
     try:
@@ -65,8 +86,6 @@ st.markdown("This tool compares a pre-game scouting report with actual game data
 with st.sidebar:
     st.header("📋 Report Inputs")
     
-   
-
     # Scouting Report Input
     st.subheader("1. Pre-Game Scouting Report")
     report_option = st.radio(
@@ -77,9 +96,9 @@ with st.sidebar:
 
     scouting_report_text = ""
     if report_option == "Upload PDF":
-        uploaded_pdf = st.file_uploader("Upload Scouting Report (PDF)", type="pdf")
-        if uploaded_pdf:
-            scouting_report_text = extract_text_from_pdf(uploaded_pdf)
+        uploaded_pdfs = st.file_uploader("Upload Scouting Report (PDF)", type="pdf", accept_multiple_files=True)
+        if uploaded_pdfs:
+            scouting_report_text = extract_text_from_multiple_pdfs(uploaded_pdfs)
     else:
         scouting_report_text = st.text_area("Paste the scouting report text here:", height=200)
 
@@ -87,26 +106,18 @@ with st.sidebar:
 
     # Game Data Input
     st.subheader("2. Game Data")
-    uploaded_csv = st.file_uploader("Upload Game Data (CSV)", type="csv")
-    
-    # Optional: Image Uploads for visual context
-    uploaded_images = st.file_uploader(
-        "Upload Game Images (Optional)",
-        type=["png", "jpg", "jpeg"],
-        accept_multiple_files=True
-    )
+    uploaded_csvs = st.file_uploader("Upload Game Data (CSV)", type="csv", accept_multiple_files=True)
 
 # --- Main Content Area for Report Generation and Display ---
 if st.button("🚀 Generate Post-Game Report", type="primary"):
     # Input validation
-    if not all([scouting_report_text, uploaded_csv]):
+    if not all([scouting_report_text, uploaded_csvs]):
         st.warning("Please provide all required inputs:  Scouting Report, and Game Data CSV.")
     else:
         with st.spinner("Analyzing data and generating your expert report..."):
             try:
                 # Read and format the game data
-                game_df = pd.read_csv(uploaded_csv)
-                game_data_str = game_df.to_markdown(index=False)
+                game_data_str = combine_csv_data(uploaded_csvs)
 
                 # --- Construct the Final Prompt for the AI Model ---
                 final_prompt = f"""
@@ -145,8 +156,6 @@ if st.button("🚀 Generate Post-Game Report", type="primary"):
                   response_stream = generate_report_stream(final_prompt)
                   if response_stream:
                       st.write_stream(response_stream)
-
-               
 
             except Exception as e:
                 st.error(f"A critical error occurred: {e}")
