@@ -1,3 +1,5 @@
 # Core
 streamlit>=1.32
 anthropic>=0.33
+fitz
+pandas
